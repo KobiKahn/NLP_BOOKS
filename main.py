@@ -54,8 +54,10 @@ def open_file(file_name):
             # Each paragraph
             else:
                 num_paragraph += 1
+                # print(num_sentence)
                 list_sentence_paragraph.append(num_sentence)
                 list_word_paragraph.append(num_word_paragraph)
+                # print(f'{file_name}: {list_sentence_paragraph}')
 
                 num_sentence = 0
                 num_word_paragraph = 0
@@ -64,7 +66,7 @@ def open_file(file_name):
 
 
 
-def calculate_M_SD(list):
+def calculate_M_SD(filename, list):
     mean = 0
     standard_dev = 0
     difference_list = []
@@ -77,7 +79,7 @@ def calculate_M_SD(list):
     variance = sum(difference_list) / len(list)
     standard_dev = math.sqrt(variance)
 
-    print(f'Mean: {mean}, SD: {standard_dev}')
+    print(f'{filename} Mean: {mean}, SD: {standard_dev}')
     return(mean, standard_dev)
 
 
@@ -88,8 +90,8 @@ def main(filename):
 
     list_sentence_paragraph, list_word_paragraph, list_word_sentence, list_comma_sentence = open_file(filename)
 
-    calculate_M_SD(list_comma_sentence)
+    calculate_M_SD(filename, list_word_sentence)
 
 
 main('Jacob Kahn - Great_Expectations.txt')
-# open_file('Jacob Kahn - Scarlet_Letter.txt')
+main('Jacob Kahn - Scarlet_Letter.txt')
