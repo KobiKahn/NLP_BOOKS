@@ -11,7 +11,6 @@ def open_file(file_name):
 
     # LISTS
     end_sentence = ['.', '!', '?']
-    quotations = ['"']
 
     list_word_sentence = []
     list_sentence_paragraph = []
@@ -34,7 +33,6 @@ def open_file(file_name):
                     for word in row:
                         num_word_paragraph += 1
 
-                        word_len = len(word)
                         if word[-1] in end_sentence:
                             num_sentence += 1
                             num_word_sentence += 1
@@ -53,14 +51,17 @@ def open_file(file_name):
 
             # Each paragraph
             else:
-                num_paragraph += 1
-                # print(num_sentence)
-                list_sentence_paragraph.append(num_sentence)
-                list_word_paragraph.append(num_word_paragraph)
-                # print(f'{file_name}: {list_sentence_paragraph}')
+                if num_word_paragraph != 0:
+                    num_paragraph += 1
+                    # print(num_sentence)
+                    list_sentence_paragraph.append(num_sentence)
+                    list_word_paragraph.append(num_word_paragraph)
+                    # print(f'{file_name}: {list_sentence_paragraph}')
 
-                num_sentence = 0
-                num_word_paragraph = 0
+                    num_sentence = 0
+                    num_word_paragraph = 0
+                else:
+                    pass
 
         return(list_sentence_paragraph, list_word_paragraph, list_word_sentence, list_comma_sentence)
 
