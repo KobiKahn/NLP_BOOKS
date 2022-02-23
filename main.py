@@ -81,18 +81,87 @@ def calculate_M_SD(filename, list):
     standard_dev = math.sqrt(variance)
 
     print(f'{filename} Mean: {mean}, SD: {standard_dev}')
-    return(mean, standard_dev)
+    return(mean, standard_dev, variance)
+
+
+def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2):
+
+    y_list1 = []
+    x_list1 = []
+
+    y_list2 = []
+    x_list2 = []
+
+    x_start1 = mean1 - 1.5 * SD1
+    delta_x1 = (3 * SD1) / 100
+    m_s1 = mean1 - SD1
+    mps1 = mean1 + SD1
+
+    x_start2 = mean1 - 1.5 * SD2
+    delta_x2 = (3 * SD2) / 100
+    m_s2 = mean2 - SD2
+    mps2 = mean2 + SD2
+
+    # COMPUTE FOR FILE 1
+    for i in range(100):
+        x = i * delta_x1 + x_start1
+
+        y = (1 / (SD1 * math.sqrt(2 * math.pi))) * math.e ** - (((x - mean1) ** 2) / (2 * variance1))
+        y_list1.append(y)
+        x_list1.append(x)
+
+        y_left = (1 / (SD1 * math.sqrt(2 * math.pi))) * math.e ** - (((m_s1 - mean1) ** 2) / (2 * variance1))
+        Left1 = y_left
+
+        y_right = (1 / (SD1 * math.sqrt(2 * math.pi))) * math.e ** - (((mps1 - mean1) ** 2) / (2 * variance1))
+        Right1 = y_right
+
+    # plt.axis([mean1 - (1.5 * SD1), mean1 + (1.5 * SD1), min(y_list1), max(y_list1)])
+    apex1 = max(y_list1)
+    plt.plot(x_list1, y_list1, '-b')
+    plt.plot([mean1, mean1], [0, apex1], '-c')
+    plt.plot([mean1 - SD1, mean1 - SD1], [0, Left1], '-c')
+    plt.plot([mean1 + SD1, mean1 + SD1], [0, Right1], '-c')
+
+
+    # COMPUTE FOR FILE 2
+    for i in range(100):
+        x = i * delta_x2 + x_start2
+
+        y = (1 / (SD2 * math.sqrt(2 * math.pi))) * math.e ** - (((x - mean2) ** 2) / (2 * variance2))
+        y_list2.append(y)
+        x_list2.append(x)
+
+        y_left = (1 / (SD2 * math.sqrt(2 * math.pi))) * math.e ** - (((m_s2 - mean2) ** 2) / (2 * variance2))
+        Left2 = y_left
+
+        y_right = (1 / (SD2 * math.sqrt(2 * math.pi))) * math.e ** - (((mps2 - mean2) ** 2) / (2 * variance2))
+        Right2 = y_right
+
+    apex2 = max(y_list2)
+    plt.plot(x_list2, y_list2, '-k')
+    plt.plot([mean2, mean2], [0, apex2], '-r')
+    plt.plot([mean2 - SD2, mean2 - SD2], [0, Left2], '-r')
+    plt.plot([mean2 + SD2, mean2 + SD2], [0, Right2], '-r')
+
+    plt.legend(['Great Expectations', 'Scarlet Letter'], loc = 'upper right')
+    plt.show()
+
+
+def main(filename1, filename2):
+
+    list_sentence_paragraph1, list_word_paragraph1, list_word_sentence1, list_comma_sentence1 = open_file(filename1)
+    list_sentence_paragraph2, list_word_paragraph2, list_word_sentence2, list_comma_sentence2 = open_file(filename2)
+
+    # list1, list2, mean1, mean2, SD1, SD2, variance1, variance2
+
+    mean1, SD1, variance1 = calculate_M_SD(filename1, list_word_paragraph1)
+    mean2, SD2, variance2 = calculate_M_SD(filename2, list_word_paragraph2)
+
+
+    graph_gaussian(list_comma_sentence1, list_comma_sentence2, mean1, mean2, SD1, SD2, variance1, variance2)
 
 
 
 
-
-def main(filename):
-
-    list_sentence_paragraph, list_word_paragraph, list_word_sentence, list_comma_sentence = open_file(filename)
-
-    calculate_M_SD(filename, list_word_sentence)
-
-
-main('Jacob Kahn - Great_Expectations.txt')
-main('Jacob Kahn - Scarlet_Letter.txt')
+main('Jacob Kahn - Great_Expectations.txt', 'Jacob Kahn - Scarlet_Letter.txt')
