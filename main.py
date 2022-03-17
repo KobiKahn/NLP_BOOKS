@@ -117,11 +117,7 @@ def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2):
         Right1 = y_right
 
     # plt.axis([mean1 - (1.5 * SD1), mean1 + (1.5 * SD1), min(y_list1), max(y_list1)])
-    apex1 = max(y_list1)
-    plt.plot(x_list1, y_list1, '-b')
-    plt.plot([mean1, mean1], [0, apex1], '-c')
-    plt.plot([mean1 - SD1, mean1 - SD1], [0, Left1], '-c')
-    plt.plot([mean1 + SD1, mean1 + SD1], [0, Right1], '-c')
+
 
 
     # COMPUTE FOR FILE 2
@@ -138,14 +134,32 @@ def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2):
         y_right = (1 / (SD2 * math.sqrt(2 * math.pi))) * math.e ** - (((mps2 - mean2) ** 2) / (2 * variance2))
         Right2 = y_right
 
-    apex2 = max(y_list2)
+    apex1 = max(y_list1)
+    plt.plot(x_list1, y_list1, '-b')
     plt.plot(x_list2, y_list2, '-k')
+
+    plt.plot([mean1, mean1], [0, apex1], '-c')
+    plt.plot([mean1 - SD1, mean1 - SD1], [0, Left1], '-c')
+    plt.plot([mean1 + SD1, mean1 + SD1], [0, Right1], '-c')
+
+    apex2 = max(y_list2)
+
     plt.plot([mean2, mean2], [0, apex2], '-r')
     plt.plot([mean2 - SD2, mean2 - SD2], [0, Left2], '-r')
     plt.plot([mean2 + SD2, mean2 + SD2], [0, Right2], '-r')
 
     plt.legend(['Great Expectations', 'Scarlet Letter'], loc = 'upper right')
     plt.show()
+
+
+def feature_unknown(mean, SD, X):
+    probability = ( math.e ** (-(1/2) * ((X - mean) / SD) ** 2) ) / ( ((2 * math.pi) ** 1/2) * SD )
+
+    return probability
+
+
+
+
 
 
 def main(filename1, filename2):
@@ -155,12 +169,13 @@ def main(filename1, filename2):
 
     # list1, list2, mean1, mean2, SD1, SD2, variance1, variance2
 
-    mean1, SD1, variance1 = calculate_M_SD(filename1, list_word_paragraph1)
-    mean2, SD2, variance2 = calculate_M_SD(filename2, list_word_paragraph2)
+    mean1, SD1, variance1 = calculate_M_SD(filename1, list_word_sentence1)
+    mean2, SD2, variance2 = calculate_M_SD(filename2, list_word_sentence2)
 
 
     graph_gaussian(list_comma_sentence1, list_comma_sentence2, mean1, mean2, SD1, SD2, variance1, variance2)
 
+    # print(feature_unknown(3, .976, 4.2))
 
 
 
