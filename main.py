@@ -7,7 +7,7 @@ def open_file(file_name):
     num_word_sentence = 0
     num_sentence = 0
     num_word_paragraph = 0
-    num_comma_sentence = 0
+    num_comma_paragraph = 0
 
     # LISTS
     end_sentence = ['.', '!', '?']
@@ -15,7 +15,7 @@ def open_file(file_name):
     list_word_sentence = []
     list_sentence_paragraph = []
     list_word_paragraph = []
-    list_comma_sentence = []
+    list_comma_paragraph = []
 
     with open(file_name) as file:
         for row in file:
@@ -40,11 +40,8 @@ def open_file(file_name):
                             list_word_sentence.append(num_word_sentence)
                             num_word_sentence = 0
 
-                            list_comma_sentence.append(num_comma_sentence)
-                            num_comma_sentence = 0
-
                         elif word[-1] == ',':
-                            num_comma_sentence += 1
+                            num_comma_paragraph += 1
 
                         else:
                             num_word_sentence += 1
@@ -56,14 +53,15 @@ def open_file(file_name):
                     # print(num_sentence)
                     list_sentence_paragraph.append(num_sentence)
                     list_word_paragraph.append(num_word_paragraph)
-                    # print(f'{file_name}: {list_sentence_paragraph}')
+                    list_comma_paragraph.append(num_comma_paragraph)
 
+                    num_comma_paragraph = 0
                     num_sentence = 0
                     num_word_paragraph = 0
                 else:
                     pass
 
-        return(list_sentence_paragraph, list_word_paragraph, list_word_sentence, list_comma_sentence)
+        return(list_sentence_paragraph, list_word_paragraph, list_word_sentence, list_comma_paragraph)
 
 
 
@@ -80,7 +78,7 @@ def calculate_M_SD(filename, list):
     variance = sum(difference_list) / len(list)
     standard_dev = math.sqrt(variance)
 
-    print(f'{filename} Mean: {mean}, SD: {standard_dev}')
+    # print(f'{filename} Mean: {mean}, SD: {standard_dev}')
     return(mean, standard_dev, variance)
 
 
@@ -162,21 +160,54 @@ def feature_unknown(mean, SD, X):
 
 
 
-def main(filename1, filename2):
-
-    list_sentence_paragraph1, list_word_paragraph1, list_word_sentence1, list_comma_sentence1 = open_file(filename1)
-    list_sentence_paragraph2, list_word_paragraph2, list_word_sentence2, list_comma_sentence2 = open_file(filename2)
-
-    # list1, list2, mean1, mean2, SD1, SD2, variance1, variance2
-
-    mean1, SD1, variance1 = calculate_M_SD(filename1, list_word_sentence1)
-    mean2, SD2, variance2 = calculate_M_SD(filename2, list_word_sentence2)
 
 
-    graph_gaussian(list_comma_sentence1, list_comma_sentence2, mean1, mean2, SD1, SD2, variance1, variance2)
+def main(filename1, filename2, filename3 = None):
 
-    # print(feature_unknown(3, .976, 4.2))
+    list_sentence_paragraph1, list_word_paragraph1, list_word_sentence1, list_comma_paragraph1 = open_file(filename1)
+    list_sentence_paragraph2, list_word_paragraph2, list_word_sentence2, list_comma_paragraph2 = open_file(filename2)
+
+
+    # mean1, SD1, variance1 = calculate_M_SD(filename1, list_comma_paragraph1)
+    # mean2, SD2, variance2 = calculate_M_SD(filename2, list_comma_paragraph2)
+
+    comma_mean1, comma_SD1, comma_variance1 = calculate_M_SD(filename1, list_comma_paragraph1)
+    comma_mean2, comma_SD2, comma_variance2 = calculate_M_SD(filename2, list_comma_paragraph2)
+
+    sentence_mean1, sentence_SD1, sentence_variance1 = calculate_M_SD(filename1, list_sentence_paragraph1)
+    sentence_mean2, sentence_SD2, sentence_variance2 = calculate_M_SD(filename2, list_sentence_paragraph2)
+
+    # graph_gaussian(list_comma_paragraph1, list_comma_paragraph2, mean1, mean2, SD1, SD2, variance1, variance2)
+
+
+    if filename3 != None:
+        list_sentence_paragraph3, list_word_paragraph3, list_word_sentence3, list_comma_paragraph3 = open_file(filename3)
+        comma_unkown_mean, comma_unkown_SD, commma_unkown_variance = calculate_M_SD(filename3, list_comma_paragraph3)
+        sentence_unkown_mean, sentence_unkown_SD, csentence_unkown_variance = calculate_M_SD(filename3, list_sentence_paragraph3)
+
+        prob_comma1 = feature_unknown(comma_mean1, comma_SD1, comma_unkown_mean)
+        prob_comma2 = feature_unknown(comma_mean2, comma_SD2, comma_unkown_mean)
+
+        prob_sentence1 = feature_unknown(sentence_mean1, sentence_SD1, sentence_unkown_mean)
+        prob_sentence2 = feature_unknown(sentence_mean2, sentence_SD2, sentence_unkown_mean)
+
+        prior = [50, 50]
+        posterior = []
+
+        feat_values = [(prob_comma1, prob_comma2), (prob_sentence1, prob_sentence2)]
+
+        for nf in range(2):
+            posterior[0] = (prior[0] * feat_values[nf][0]) / (prior[0] * feat_values[nf][0] + prior[1] * feat_values[nf][1])
+
+            posterior[1] = (prior[1] * feat_values[nf][1]) / (prior[0] * feat_values[nf][0] + prior[1] * feat_values[nf][1])
+
+            prior[0] = posterior[0]
+            prior[1] = posterior[1]
+
+        print(prob_comma1, prob_comma2)
+        print(prob_sentence1, prob_sentence2)
 
 
 
-main('Jacob Kahn - Great_Expectations.txt', 'Jacob Kahn - Scarlet_Letter.txt')
+
+main('Jacob Kahn - Great_Expectations.txt', 'Jacob Kahn - Scarlet_Letter.txt', 'Jacob Kahn - Great_Expectations.txt')
