@@ -82,7 +82,8 @@ def calculate_M_SD(filename, list):
     return(mean, standard_dev, variance)
 
 
-def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2):
+def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2, unkown = False):
+    # print(f'UNKOWN NUMBER 2: {unkown}')
 
     y_list1 = []
     x_list1 = []
@@ -100,6 +101,16 @@ def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2):
     m_s2 = mean2 - SD2
     mps2 = mean2 + SD2
 
+    if unkown != False:
+        y_unkown1 = (1 / (SD1 * math.sqrt(2 * math.pi))) * math.e ** - (((unkown - mean1) ** 2) / (2 * variance1))
+        y_unkown2 =  y = (1 / (SD2 * math.sqrt(2 * math.pi))) * math.e ** - (((unkown - mean2) ** 2) / (2 * variance2))
+
+        if y_unkown1 >= y_unkown2:
+            y_unkown = y_unkown1
+        else:
+            y_unkown = y_unkown2
+
+
     # COMPUTE FOR FILE 1
     for i in range(100):
         x = i * delta_x1 + x_start1
@@ -115,8 +126,6 @@ def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2):
         Right1 = y_right
 
     # plt.axis([mean1 - (1.5 * SD1), mean1 + (1.5 * SD1), min(y_list1), max(y_list1)])
-
-
 
     # COMPUTE FOR FILE 2
     for i in range(100):
@@ -146,6 +155,9 @@ def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2):
     plt.plot([mean2 - SD2, mean2 - SD2], [0, Left2], '-r')
     plt.plot([mean2 + SD2, mean2 + SD2], [0, Right2], '-r')
 
+    if unkown != False:
+        plt.plot([unkown, unkown], [0, y_unkown], '--m')
+
     plt.legend(['Great Expectations', 'Scarlet Letter'], loc = 'upper right')
     plt.show()
 
@@ -156,7 +168,17 @@ def feature_unknown(mean, SD, X):
     return probability
 
 
+def calculate_unkown(prior, feat_values, posterior):
 
+    for nf in range(2):
+        posterior[0] = (prior[0] * feat_values[nf][0]) / (prior[0] * feat_values[nf][0] + prior[1] * feat_values[nf][1])
+
+        posterior[1] = (prior[1] * feat_values[nf][1]) / (prior[0] * feat_values[nf][0] + prior[1] * feat_values[nf][1])
+
+        prior[0] = posterior[0]
+        prior[1] = posterior[1]
+
+    return(prior)
 
 
 
@@ -182,8 +204,11 @@ def main(filename1, filename2, filename3 = None):
 
     if filename3 != None:
         list_sentence_paragraph3, list_word_paragraph3, list_word_sentence3, list_comma_paragraph3 = open_file(filename3)
+
         comma_unkown_mean, comma_unkown_SD, commma_unkown_variance = calculate_M_SD(filename3, list_comma_paragraph3)
         sentence_unkown_mean, sentence_unkown_SD, csentence_unkown_variance = calculate_M_SD(filename3, list_sentence_paragraph3)
+        # print(f'UNKOWN NUMBER 1: {sentence_unkown_mean}')
+        # print(f'UNKOWN NUMBER 1: {comma_unkown_mean}')
 
         prob_comma1 = feature_unknown(comma_mean1, comma_SD1, comma_unkown_mean)
         prob_comma2 = feature_unknown(comma_mean2, comma_SD2, comma_unkown_mean)
@@ -192,21 +217,21 @@ def main(filename1, filename2, filename3 = None):
         prob_sentence2 = feature_unknown(sentence_mean2, sentence_SD2, sentence_unkown_mean)
 
         prior = [50, 50]
-        posterior = []
-
+        posterior = [0, 0]
         feat_values = [(prob_comma1, prob_comma2), (prob_sentence1, prob_sentence2)]
 
-        for nf in range(2):
-            posterior[0] = (prior[0] * feat_values[nf][0]) / (prior[0] * feat_values[nf][0] + prior[1] * feat_values[nf][1])
+        prior = calculate_unkown(prior, feat_values, posterior)
+        # print(prior)
+        prior = calculate_unkown(prior, feat_values, posterior)
 
-            posterior[1] = (prior[1] * feat_values[nf][1]) / (prior[0] * feat_values[nf][0] + prior[1] * feat_values[nf][1])
+        # MAKE THE PRIOR LIST INTO PERCENTS
+        for i in range(2):
+            prior[i] = prior[i] * 100
 
-            prior[0] = posterior[0]
-            prior[1] = posterior[1]
+        print(prior)
 
-        print(prob_comma1, prob_comma2)
-        print(prob_sentence1, prob_sentence2)
-
+        graph_gaussian(list_comma_paragraph1, list_comma_paragraph2, comma_mean1, comma_mean2, comma_SD1, comma_SD2, comma_variance1, comma_variance2, comma_unkown_mean)
+        graph_gaussian(list_sentence_paragraph1, list_sentence_paragraph2, sentence_mean1, sentence_mean2, sentence_SD1, sentence_SD2, sentence_variance1, sentence_variance2, sentence_unkown_mean)
 
 
 
