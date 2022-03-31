@@ -82,7 +82,7 @@ def calculate_M_SD(filename, list):
     return(mean, standard_dev, variance)
 
 
-def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2, unkown = False):
+def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2, unkown = False, name = None):
     # print(f'UNKOWN NUMBER 2: {unkown}')
 
     y_list1 = []
@@ -141,6 +141,8 @@ def graph_gaussian(list1, list2, mean1, mean2, SD1, SD2, variance1, variance2, u
         y_right = (1 / (SD2 * math.sqrt(2 * math.pi))) * math.e ** - (((mps2 - mean2) ** 2) / (2 * variance2))
         Right2 = y_right
 
+    if name != None:
+        plt.title(name)
     apex1 = max(y_list1)
     plt.plot(x_list1, y_list1, '-b')
     plt.plot(x_list2, y_list2, '-k')
@@ -230,9 +232,9 @@ def main(filename1, filename2, filename3 = None):
 
         print(prior)
 
-        graph_gaussian(list_comma_paragraph1, list_comma_paragraph2, comma_mean1, comma_mean2, comma_SD1, comma_SD2, comma_variance1, comma_variance2, comma_unkown_mean)
-        graph_gaussian(list_sentence_paragraph1, list_sentence_paragraph2, sentence_mean1, sentence_mean2, sentence_SD1, sentence_SD2, sentence_variance1, sentence_variance2, sentence_unkown_mean)
+        graph_gaussian(list_comma_paragraph1, list_comma_paragraph2, comma_mean1, comma_mean2, comma_SD1, comma_SD2, comma_variance1, comma_variance2, comma_unkown_mean, "Comma Paragraph")
+        graph_gaussian(list_sentence_paragraph1, list_sentence_paragraph2, sentence_mean1, sentence_mean2, sentence_SD1, sentence_SD2, sentence_variance1, sentence_variance2, sentence_unkown_mean, "Sentence Paragraph")
 
 
 
-main('Jacob Kahn - Great_Expectations.txt', 'Jacob Kahn - Scarlet_Letter.txt', 'Jacob Kahn - Great_Expectations.txt')
+main('Jacob Kahn - Great_Expectations.txt', 'Jacob Kahn - Scarlet_Letter.txt', 'Novel2.txt')
